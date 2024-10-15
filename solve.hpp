@@ -210,161 +210,446 @@ void initialize_matrix(double* solution, int n) {
         solution[i * n + i] = 1.0;
     }
 }
+void subtraction(double *a, double *b, int row, int col)
+{
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            a[i * col + j] -= b[i * col + j];
+        }
+    }
+}
+// void mult(double *a, double *b, double *c, int m, double norm)
+// {
 
-int solve(int n, int m, double* matr, double* block, double* solution, double* inverse, double* tmp, double* block1, double* block2, double norma) {
-    int k = n / m;
-    int bl = n - (k * m);
-    int l = m;
-    int t = -1;
-    for (int p = 0; p < k; p++) {
-        t = findmax(matr, block, n, m, p, p, norma, tmp);
-        if (t == -1) {
-            printf("Не нашлось обратной у findmax\n");
+//     for (int i = 0; i < m; i++)
+//     {
+//         for (int j = 0; j < m; j++)
+//         {
+//             c[i * m + j] = 0.0;
+//             if (fabs(a[i * m + j]) < 1e-50 * norm)
+//             {
+//                 a[i * m + j] = 0.;
+//             }
+//             if (fabs(b[i * m + j]) < 1e-50 * norm)
+//             {
+//                 b[i * m + j] = 0.;
+//             }
+//         }
+//     }
+
+//     int t, q, r;
+//     double s00, s01, s02, s10, s11, s12, s20, s21, s22;
+//     int v3 = m % 3;
+//     int h3 = m % 3;
+//     for (r = 0; r < v3; r++) // номер строки
+//     {
+//         for (t = 0; t < h3; t++) // номер столбца
+//         {
+//             s00 = 0;
+//             for (q = 0; q < m; q++)
+//             {
+//                 s00 += a[r * m + q] * b[q * m + t];
+//             }
+//             c[r * m + t] = s00;
+//         }
+//         for (; t < m; t += 3)
+//         {
+//             s00 = 0;
+//             s01 = 0;
+//             s02 = 0;
+//             for (q = 0; q < m; q++)
+//             {
+//                 s00 += a[r * m + q] * b[q * m + t];
+//                 s01 += a[r * m + q] * b[q * m + t + 1];
+//                 s02 += a[r * m + q] * b[q * m + t + 2];
+//             }
+//             c[r * m + t] = s00;
+//             c[r * m + t + 1] = s01;
+//             c[r * m + t + 2] = s02;
+//         }
+//     }
+//     for (; r < m; r += 3)
+//     {
+//         for (t = 0; t < h3; t++)
+//         {
+//             s00 = 0;
+//             s10 = 0;
+//             s20 = 0;
+//             for (q = 0; q < m; q++)
+//             {
+//                 s00 += a[r * m + q] * b[q * m + t];
+//                 s10 += a[(r + 1) * m + q] * b[q * m + t];
+//                 s20 += a[(r + 2) * m + q] * b[q * m + t];
+//             }
+//             c[r * m + t] = s00;
+//             c[(r + 1) * m + t] = s10;
+//             c[(r + 2) * m + t] = s20;
+//         }
+//         for (; t < m; t += 3)
+//         {
+//             s00 = 0;
+//             s01 = 0;
+//             s02 = 0;
+//             s10 = 0;
+//             s11 = 0;
+//             s12 = 0;
+//             s20 = 0;
+//             s21 = 0;
+//             s22 = 0;
+//             for (q = 0; q < m; q++)
+//             {
+//                 s00 += a[r * m + q] * b[q * m + t];
+//                 s01 += a[r * m + q] * b[q * m + t + 1];
+//                 s02 += a[r * m + q] * b[q * m + t + 2];
+//                 s10 += a[(r + 1) * m + q] * b[q * m + t];
+//                 s11 += a[(r + 1) * m + q] * b[q * m + t + 1];
+//                 s12 += a[(r + 1) * m + q] * b[q * m + t + 2];
+//                 s20 += a[(r + 2) * m + q] * b[q * m + t];
+//                 s21 += a[(r + 2) * m + q] * b[q * m + t + 1];
+//                 s22 += a[(r + 2) * m + q] * b[q * m + t + 2];
+//             }
+//             c[r * m + t] = s00;
+//             c[r * m + t + 1] = s01;
+//             c[r * m + t + 2] = s02;
+//             c[(r + 1) * m + t] = s10;
+//             c[(r + 1) * m + t + 1] = s11;
+//             c[(r + 1) * m + t + 2] = s12;
+//             c[(r + 2) * m + t] = s20;
+//             c[(r + 2) * m + t + 1] = s21;
+//             c[(r + 2) * m + t + 2] = s22;
+//         }
+//     }
+// }
+bool inverse_matrixx(double *matrix, double *inverse_matrix, int n, int m, double norm)
+{
+    int i, j, k, t;
+    double p, *a, *b, **a_rows, **b_rows, *temp_row;
+
+    a = new double[n * n];
+    b = new double[n * n];
+    a_rows = new double*[n];
+    b_rows = new double*[n];
+
+    for (i = 0; i < n; i++)
+    {
+        a_rows[i] = &a[i * n];
+        b_rows[i] = &b[i * n];
+        for (j = 0; j < n; j++)
+        {
+            a_rows[i][j] = matrix[i * m + j];
+            b_rows[i][j] = (i == j) ? 1.0 : 0.0;
+        }
+    }
+
+    for (i = 0; i < n; i++)
+    {
+        t = -1;
+        p = 0.0;
+        for (j = i; j < n; j++)
+        {
+            double val = fabs(a_rows[j][i]);
+            if (val > fabs(p))
+            {
+                p = a_rows[j][i];
+                t = j;
+            }
+        }
+
+        if (t == -1 || fabs(p) <= 5e-15 * norm)
+        {
+            delete[] a;
+            delete[] b;
+            delete[] a_rows;
+            delete[] b_rows;
+            return false;
+        }
+
+        if (t != i)
+        {
+            temp_row = a_rows[t];
+            a_rows[t] = a_rows[i];
+            a_rows[i] = temp_row;
+
+            temp_row = b_rows[t];
+            b_rows[t] = b_rows[i];
+            b_rows[i] = temp_row;
+        }
+
+        double p_inv = 1.0 / a_rows[i][i];
+        a_rows[i][i] = 1.0;
+        for (j = i + 1; j < n; j++)
+        {
+            a_rows[i][j] *= p_inv;
+        }
+        for (j = 0; j < n; j++)
+        {
+            b_rows[i][j] *= p_inv;
+        }
+
+        for (j = i + 1; j < n; j++)
+        {
+            p = a_rows[j][i];
+            a_rows[j][i] = 0.0;
+            for (k = i + 1; k < n; k++)
+            {
+                a_rows[j][k] -= a_rows[i][k] * p;
+            }
+            for (k = 0; k < n; k++)
+            {
+                b_rows[j][k] -= b_rows[i][k] * p;
+            }
+        }
+    }
+
+    for (i = n - 1; i >= 0; i--)
+    {
+        for (j = 0; j < i; j++)
+        {
+            p = a_rows[j][i];
+            a_rows[j][i] = 0.0;
+            for (k = 0; k < n; k++)
+            {
+                b_rows[j][k] -= b_rows[i][k] * p;
+            }
+        }
+    }
+
+    for (i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            inverse_matrix[i * m + j] = b_rows[i][j];
+        }
+    }
+
+    delete[] a;
+    delete[] b;
+    delete[] a_rows;
+    delete[] b_rows;
+    return true;
+}
+
+void change_block_place(double *matrix, int n, int m, int from_i, int from_j, int to_i, int to_j)
+{
+    // меняем строки
+    int start_from = from_i * m;
+    int start_to = to_i * m;
+    double tmp;
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            tmp = matrix[(start_from + i) * n + j];
+            matrix[(start_from + i) * n + j] = matrix[(start_to + i) * n + j];
+            matrix[(start_to + i) * n + j] = tmp;
+        }
+    }
+
+    // меняем столбцы
+    start_from = from_j * m;
+    start_to = to_j * m;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            tmp = matrix[i * n + (start_from + j)];
+            matrix[i * n + (start_from + j)] = matrix[i * n + (start_to + j)];
+            matrix[i * n + (start_to + j)] = tmp;
+        }
+    }
+}
+
+double matrix_norm(double *matrix, int n, int m)
+{
+    double norm = 0;
+    for (int j = 0; j < m; j++)
+    {
+        double buf = 0;
+        for (int i = 0; i < n; i++)
+        {
+            buf += fabs(matrix[i * n + j]);
+        }
+        if (norm < buf)
+        { // возможно заменить на norm - buf < 0
+            norm = buf;
+        }
+    }
+    return norm;
+}
+int solve_function_task_14(double *matrix, double *inverse_matrix, double *block,
+                                    double *inv_block, double *help_block, int *permutation,
+                                    int n, int m, double matrix_norm)
+{
+    int block_count = n / m;                 // количество блоков m на m
+    int remainder = n - block_count * m;     // размер для прямоугольных блоков
+    int block_limit = (remainder != 0 ? block_count + 1 : block_count); // предел индексирования
+    int min_index_i;                         // индекс блока с минимальной обратной
+    int min_index_j;                         // индекс блока с минимальной обратной
+
+    // инициализируем строку permutation
+    for (int i = 0; i < block_count; i++)
+    {
+        permutation[i] = i;
+    }
+
+    for (int step = 0; step < block_limit; step++) // step - номер шага алгоритма
+    {
+        double min_inverse_norm = __DBL_MAX__; // минимальная норма обратного блока
+        int inverse_block_count = 0;           // счетчик для блоков с обратной матрицей
+        min_index_i = step;
+        min_index_j = step;
+
+        // Находим блок с минимальной нормой обратной и сдвигаем его в верхний левый угол подматрицы
+        for (int i = step; i < block_count; i++) // (i , j) - индекс блока
+        {
+            get_block(matrix, block, n, m, i, step);
+            if (inverse_matrixx(block, block, m, m, matrix_norm))
+            {
+                inverse_block_count++;
+                double buffer = norma(block, m);
+                if (buffer < min_inverse_norm)
+                {
+                    min_inverse_norm = buffer;
+                    min_index_i = i;
+                    for (int ii = 0; ii < m; ii++)
+                    {
+                        for (int jj = 0; jj < m; jj++)
+                        {
+                            inv_block[ii * m + jj] = block[ii * m + jj]; // обратный блок с минимальной нормой
+                        }
+                    }
+                }
+            }
+        }
+
+        if (step == block_count)
+        {
+            get_block(matrix, block, n, m, step, step);
+            if (inverse_matrixx(block, block, remainder, m, matrix_norm))
+            {
+                inverse_block_count++;
+                min_index_i = step;
+                min_index_j = step;
+                for (int ii = 0; ii < remainder; ii++)
+                {
+                    for (int jj = 0; jj < remainder; jj++)
+                    {
+                        inv_block[ii * m + jj] = block[ii * m + jj];
+                    }
+                }
+            }
+        }
+
+        if (inverse_block_count == 0)
+        {
+            printf("ERROR in Solve Function: No block with inverse!\n");
             return 1;
         }
-        if (t != p) {
-            swap_rows(matr, p, t, n, m);
-            swap_rows(solution, p, t, n, m);
+        if (step != block_count)
+        {
+            change_block_place(matrix, n, m, min_index_i, min_index_j, step, step);
+            change_block_place(inverse_matrix, n, m, min_index_i, step, step, step);
+
+            int temp = permutation[step];
+            permutation[step] = permutation[min_index_j];
+            permutation[min_index_j] = temp;
         }
 
-        get_block(matr, block, n, l, p, p);
+        // домножаем на обратную в нужной строке и потом вычитаем
+        for (int i = step; i < block_limit; i++)
+        {
+            for (int j = step; j < block_limit; j++)
+            {
+                if (i == step)
+                {
+                    get_block(matrix, block, n, m, i, j);
+                    if (j == step)
+                    {
+                        for (int ii = 0; ii < m; ii++)
+                        {
+                            for (int jj = 0; jj < m; jj++)
+                            {
+                                block[ii * m + jj] = (ii == jj ? 1 : 0);
+                            }
+                        }
 
-        treug(block, inverse, l, norma, tmp);
-        diag(block, inverse, l);
+                        put_block(matrix, block, n, m, i, j);
 
-        for (int s = p + 1; s < k + 1; s++) {
-            get_block(matr, block, n, m, p, s);
+                        for (int jj = 0; jj < block_limit; jj++)
+                        {
+                            get_block(inverse_matrix, block, n, m, i, jj);
+                            mult(inv_block, block, help_block, m, m, m, m, matrix_norm);
+                            put_block(inverse_matrix, help_block, n, m, i, jj);
+                        }
 
-            mult(inverse, block, tmp, m, m, m, m, norma);
-            put_block(matr, tmp, n, m, p, s);
-        }
+                        for (int jj = step + 1; jj < block_limit; jj++)
+                        {
+                            get_block(matrix, block, n, m, i, jj);
+                            mult(inv_block, block, help_block, m, m, m, m, matrix_norm);
+                            put_block(matrix, help_block, n, m, i, jj);
+                        }
 
-        for (int s = 0; s < k + 1; s++) {
-            get_block(solution, block, n, m, p, s);
-            mult(inverse, block, tmp, m, m, m, m, norma);
-            put_block(solution, tmp, n, m, p, s);
-        }
-
-        for (int i = p + 1; i < k + 1; i++) { // Умножение m x m
-            for (int j = p + 1; j < k + 1; j++) {
-                get_block(matr, block, n, m, i, j);
-                get_block(matr, block1, n, m, i, p);
-                get_block(matr, block2, n, m, p, j);
-                mult(block1, block2, tmp, m, m, m, m, norma);
-                subtraction(block, tmp, m);
-                put_block(matr, block, n, m, i, j);
-            }
-        }
-        for (int i = p + 1; i < k + 1; i++) { // Умножение m x m
-            for (int j = 0; j < k + 1; j++) {
-                get_block(solution, block, n, m, i, j);
-
-                get_block(matr, block1, n, m, i, p);
-                get_block(solution, block2, n, m, p, j);
-                mult(block1, block2, tmp, m, m, m, m, norma);
-                subtraction(block, tmp, m);
-                put_block(solution, block, n, m, i, j);
-            }
-        }
-    }
-
-    get_block(matr, block1, n, m, k, k);
-
-    for (int i = 0; i < bl; i++) {
-        for (int j = 0; j < bl; j++) {
-            block[i * bl + j] = block1[i * m + j];
-        }
-    }
-
-    if (treug(block, inverse, bl, norma, tmp) == -1) {
-        printf("Метод не применим\n");
-        return 1;
-    } else {
-        diag(block, inverse, bl);
-        for (int i = 0; i < k; i++) {
-            get_block(solution, block, n, m, k, i);
-
-            mult(inverse, block, tmp, bl, bl, bl, m, norma); // умножение l x l
-
-            put_block(solution, tmp, n, m, k, i);
-        }
-        get_block(solution, block1, n, m, k, k);
-        for (int i = 0; i < bl; i++) {
-            for (int j = 0; j < bl; j++) {
-                block[i * bl + j] = block1[i * m + j];
-            }
-        }
-
-        mult(inverse, block, tmp, bl, bl, bl, bl, norma); // умножение l x l
-
-        if (bl == 1) {
-            for (int i = 0; i < bl; i++) {
-                for (int j = 0; j < bl; j++) {
-                    block[i * bl + j] = tmp[i * bl + j];
+                        continue;
+                    }
                 }
-            }
-        } else {
-            for (int i = 0; i < bl; i++) {
-                for (int j = 0; j < bl; j++) {
-                    block[(i)*m + (j)] = tmp[i * bl + j];
+                else
+                {
+                    if (j == step)
+                    {
+                        get_block(matrix, inv_block, n, m, i, step);
+                        for (int jj = 0; jj < block_limit; jj++)
+                        {
+                            get_block(inverse_matrix, help_block, n, m, step, jj);
+                            mult(inv_block, help_block, block, m, m, m, m, matrix_norm);
+                            get_block(inverse_matrix, help_block, n, m, i, jj);
+                            subtraction(help_block, block, m, m);
+                            put_block(inverse_matrix, help_block, n, m, i, jj);
+                        }
+                    }
+
+                    get_block(matrix, help_block, n, m, step, j);
+                    mult(inv_block, help_block, block, m, m, m, m, matrix_norm);
+                    get_block(matrix, help_block, n, m, i, j);
+                    subtraction(help_block, block, m, m);
+                    put_block(matrix, help_block, n, m, i, j);
                 }
             }
         }
-
-        put_block(solution, block, n, m, k, k);
     }
 
-    for (int j = 0; j < k; j++) {
-        get_block(solution, block, n, m, k - 1, j);
-        get_block(matr, block1, n, m, k - 1, k);
-        get_block(solution, block2, n, m, k, j);
-        mult(block1, block2, tmp, m, m, m, m, norma);
-        subtraction(block, tmp, m);
-        put_block(solution, block, n, m, k - 1, j);
-    }
+    // обратный ход
+    for (int i = block_limit - 1; i > 0; i--)
+    {
+        for (int j = i - 1; j >= 0; j--)
+        {
+            get_block(matrix, inv_block, n, m, j, i);
 
-    get_block(solution, block, n, m, k - 1, k);
-    get_block(matr, block1, n, m, k - 1, k);
-    get_block(solution, block2, n, m, k, k);
-    mult(block1, block2, tmp, m, m, m, m, norma); // Умножение m x l
-    subtraction(block, tmp, m);
-    put_block(solution, block, n, m, k - 1, k);
-
-    for (int i = k - 2; i >= 0; i--) {
-        for (int j = 0; j < k; j++) {
-            get_block(solution, block2, n, m, i, j);
-
-            for (int t = i + 1; t < k; t++) {
-                get_block(matr, block, n, m, i, t);
-                get_block(solution, block1, n, m, t, j);
-                mult(block, block1, tmp, m, m, m, m, norma);
-                subtraction(block2, tmp, m);
+            for (int jj = 0; jj < block_limit; jj++)
+            {
+                get_block(inverse_matrix, help_block, n, m, i, jj);
+                mult(inv_block, help_block, block, m, m, m, m, matrix_norm);
+                get_block(inverse_matrix, help_block, n, m, j, jj);
+                subtraction(help_block, block, m, m);
+                put_block(inverse_matrix, help_block, n, m, j, jj);
             }
-            get_block(matr, block, n, m, i, k);
-            get_block(solution, block1, n, m, k, j);
-            mult(block, block1, tmp, m, m, m, m, norma); // Умножение m x l
-            subtraction(block2, tmp, m);
-            put_block(solution, block2, n, m, i, j);
         }
     }
 
-    if (bl != 0) {
-        for (int i = k - 2; i > 0; i--) {
-            get_block(solution, block2, n, m, i, k);
-
-            for (int t = i + 1; t < k; t++) {
-                get_block(matr, block, n, m, i, t);
-                get_block(solution, block1, n, m, t, k);
-                mult(block, block1, tmp, m, m, m, m, norma);
-                subtraction(block2, tmp, m);
+    for (int i = 0; i < block_count; i++)
+    {
+        for (int j = i; j < block_count; j++)
+        {
+            if (permutation[j] == i)
+            {
+                change_block_place(inverse_matrix, n, m, i, i, j, i);
+                int temp = permutation[i];
+                permutation[i] = permutation[j];
+                permutation[j] = temp;
             }
-
-            get_block(matr, block, n, m, i, k);
-            get_block(solution, block1, n, m, k, k);
-            mult(block, block1, tmp, m, m, m, m, norma);
-            subtraction(block2, tmp, m);
-            put_block(solution, block2, n, m, i, k);
         }
     }
+
     return 0;
 }

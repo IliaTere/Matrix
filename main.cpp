@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     double* matrtmp = new double[n*n];
     double* temp3 = new double[n*n];
     double* e = new double[n*n];
-
+    int* per = new int[n*n];
     for (int i = 0; i < n*n; i++)
             matrtmp[i] = matr[i];
 
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     }
     initialize_matrix(x, n);
     start = clock();
-    int sd = solve(n, m, matr, block, x, inverse, temp, temp1, temp2, matrix_norm);
+    int sd = solve_function_task_14(matr, x, block, inverse, temp, per, n, m, matrix_norm);
     end = clock();
     double t1 = (double)(end - start) / (double)CLOCKS_PER_SEC;
 
@@ -151,6 +151,7 @@ int main(int argc, char **argv)
             break;
     }
 
+    delete[] per;
     delete[] matrtmp;
     delete[] temp3;
     delete[] e;
