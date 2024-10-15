@@ -220,108 +220,7 @@ void subtraction(double *a, double *b, int row, int col)
         }
     }
 }
-// void mult(double *a, double *b, double *c, int m, double norm)
-// {
 
-//     for (int i = 0; i < m; i++)
-//     {
-//         for (int j = 0; j < m; j++)
-//         {
-//             c[i * m + j] = 0.0;
-//             if (fabs(a[i * m + j]) < 1e-50 * norm)
-//             {
-//                 a[i * m + j] = 0.;
-//             }
-//             if (fabs(b[i * m + j]) < 1e-50 * norm)
-//             {
-//                 b[i * m + j] = 0.;
-//             }
-//         }
-//     }
-
-//     int t, q, r;
-//     double s00, s01, s02, s10, s11, s12, s20, s21, s22;
-//     int v3 = m % 3;
-//     int h3 = m % 3;
-//     for (r = 0; r < v3; r++) // номер строки
-//     {
-//         for (t = 0; t < h3; t++) // номер столбца
-//         {
-//             s00 = 0;
-//             for (q = 0; q < m; q++)
-//             {
-//                 s00 += a[r * m + q] * b[q * m + t];
-//             }
-//             c[r * m + t] = s00;
-//         }
-//         for (; t < m; t += 3)
-//         {
-//             s00 = 0;
-//             s01 = 0;
-//             s02 = 0;
-//             for (q = 0; q < m; q++)
-//             {
-//                 s00 += a[r * m + q] * b[q * m + t];
-//                 s01 += a[r * m + q] * b[q * m + t + 1];
-//                 s02 += a[r * m + q] * b[q * m + t + 2];
-//             }
-//             c[r * m + t] = s00;
-//             c[r * m + t + 1] = s01;
-//             c[r * m + t + 2] = s02;
-//         }
-//     }
-//     for (; r < m; r += 3)
-//     {
-//         for (t = 0; t < h3; t++)
-//         {
-//             s00 = 0;
-//             s10 = 0;
-//             s20 = 0;
-//             for (q = 0; q < m; q++)
-//             {
-//                 s00 += a[r * m + q] * b[q * m + t];
-//                 s10 += a[(r + 1) * m + q] * b[q * m + t];
-//                 s20 += a[(r + 2) * m + q] * b[q * m + t];
-//             }
-//             c[r * m + t] = s00;
-//             c[(r + 1) * m + t] = s10;
-//             c[(r + 2) * m + t] = s20;
-//         }
-//         for (; t < m; t += 3)
-//         {
-//             s00 = 0;
-//             s01 = 0;
-//             s02 = 0;
-//             s10 = 0;
-//             s11 = 0;
-//             s12 = 0;
-//             s20 = 0;
-//             s21 = 0;
-//             s22 = 0;
-//             for (q = 0; q < m; q++)
-//             {
-//                 s00 += a[r * m + q] * b[q * m + t];
-//                 s01 += a[r * m + q] * b[q * m + t + 1];
-//                 s02 += a[r * m + q] * b[q * m + t + 2];
-//                 s10 += a[(r + 1) * m + q] * b[q * m + t];
-//                 s11 += a[(r + 1) * m + q] * b[q * m + t + 1];
-//                 s12 += a[(r + 1) * m + q] * b[q * m + t + 2];
-//                 s20 += a[(r + 2) * m + q] * b[q * m + t];
-//                 s21 += a[(r + 2) * m + q] * b[q * m + t + 1];
-//                 s22 += a[(r + 2) * m + q] * b[q * m + t + 2];
-//             }
-//             c[r * m + t] = s00;
-//             c[r * m + t + 1] = s01;
-//             c[r * m + t + 2] = s02;
-//             c[(r + 1) * m + t] = s10;
-//             c[(r + 1) * m + t + 1] = s11;
-//             c[(r + 1) * m + t + 2] = s12;
-//             c[(r + 2) * m + t] = s20;
-//             c[(r + 2) * m + t + 1] = s21;
-//             c[(r + 2) * m + t + 2] = s22;
-//         }
-//     }
-// }
 bool inverse_matrixx(double *matrix, double *inverse_matrix, int n, int m, double norm)
 {
     int i, j, k, t;
@@ -478,7 +377,7 @@ double matrix_norm(double *matrix, int n, int m)
     }
     return norm;
 }
-int solve_function_task_14(double *matrix, double *inverse_matrix, double *block,
+int solve(double *matrix, double *inverse_matrix, double *block,
                                     double *inv_block, double *help_block, int *permutation,
                                     int n, int m, double matrix_norm)
 {
@@ -636,20 +535,5 @@ int solve_function_task_14(double *matrix, double *inverse_matrix, double *block
             }
         }
     }
-
-    for (int i = 0; i < block_count; i++)
-    {
-        for (int j = i; j < block_count; j++)
-        {
-            if (permutation[j] == i)
-            {
-                change_block_place(inverse_matrix, n, m, i, i, j, i);
-                int temp = permutation[i];
-                permutation[i] = permutation[j];
-                permutation[j] = temp;
-            }
-        }
-    }
-
     return 0;
 }

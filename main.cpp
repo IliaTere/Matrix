@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     }
     initialize_matrix(x, n);
     start = clock();
-    int sd = solve_function_task_14(matr, x, block, inverse, temp, per, n, m, matrix_norm);
+    int sd = solve(matr, x, block, inverse, temp, per, n, m, matrix_norm);
     end = clock();
     double t1 = (double)(end - start) / (double)CLOCKS_PER_SEC;
 
